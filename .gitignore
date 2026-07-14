@@ -1,0 +1,41 @@
+# Virtual Environment
+venv/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Database
+*.db
+*.sqlite3
+
+# VS Code
+.vscode/
+
+# JetBrains IDE
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment Variables
+.env
+
+# Backup Files
+*.bak
+
+# Generated Files
+backups/
+exports/
+
+# Uploads (Optional)
+uploads/
+
+# Python Build
+build/
+dist/
+*.egg-info/
