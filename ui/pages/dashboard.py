@@ -348,16 +348,10 @@ class DashboardPage(BasePage):
         self.stats_card = Card(
             self.row4,
             title="📊 Statistics",
-            height=240
+            height=220
         )
 
-        self.stats_card.pack(
-            fill="x"
-        )
-
-        # -----------------------------
-        # Statistics Container
-        # -----------------------------
+        self.stats_card.pack(fill="x")
 
         stats_frame = ctk.CTkFrame(
             self.stats_card.content,
@@ -368,54 +362,51 @@ class DashboardPage(BasePage):
             fill="both",
             expand=True,
             padx=5,
-            pady=5
+            pady=10
         )
 
         stats = [
-            ("📖", "25", "Entries"),
-            ("📝", "12,450", "Words"),
-            ("🎯", "8", "Goals"),
-            ("💪", "15", "Habits")
+            ("25", "Entries"),
+            ("12,450", "Words"),
+            ("8", "Goals"),
+            ("15", "Habits")
         ]
 
-        for icon, value, title in stats:
+        for value, title in stats:
 
-            card = ctk.CTkFrame(
+            stat_card = ctk.CTkFrame(
                 stats_frame,
-                fg_color=CONTENT,
-                corner_radius=12,
-                height=130
+                fg_color="#3B82F6",
+                corner_radius=12
             )
 
-            card.pack(
+            stat_card.pack(
                 side="left",
                 expand=True,
                 fill="both",
                 padx=8,
-                pady=10
+                pady=5
             )
 
-            # Fixed height
-            card.pack_propagate(False)
-
-            ctk.CTkLabel(
-                card,
-                text=icon,
-                font=("Segoe UI Emoji", 28)
-            ).pack(pady=(15, 5))
-
-            ctk.CTkLabel(
-                card,
+            value_label = ctk.CTkLabel(
+                stat_card,
                 text=value,
-                font=("Segoe UI", 22, "bold")
-            ).pack()
+                font=("Segoe UI", 26, "bold"),
+                text_color=TEXT
+            )
 
-            ctk.CTkLabel(
-                card,
+            value_label.pack(
+                pady=(30, 5)
+            )
+
+            title_label = ctk.CTkLabel(
+                stat_card,
                 text=title,
-                font=("Segoe UI", 13),
+                font=("Segoe UI", 14),
                 text_color=SECONDARY
-            ).pack(pady=(5, 15))
+            )
+
+            title_label.pack()
 
     def create_quote_card(self):
 

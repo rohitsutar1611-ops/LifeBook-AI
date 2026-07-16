@@ -32,6 +32,11 @@ from ui.pages.settings import SettingsPage
 # =========================
 from ui.themes.colors import *
 
+# =========================
+# Database
+# =========================
+from database.models import DatabaseModels
+
 
 # -------------------------
 # Application Theme
@@ -58,6 +63,8 @@ class LifeBookAI(ctk.CTk):
         self.minsize(1200, 700)
 
         self.configure(fg_color=BACKGROUND)
+
+        self.initialize_database()
 
         # -------------------------
         # Main Frame
@@ -139,11 +146,20 @@ class LifeBookAI(ctk.CTk):
 
         self.sidebar.select_button("Dashboard")
 
-        # -------------------------
-        # Open First Page
-        # -------------------------
+        
 
-        self.navigation.navigate("Dashboard")
+    def initialize_database(self):
+        """
+        Initialize application database.
+        """
+
+        models = DatabaseModels()
+
+        models.create_all_tables()
+
+        models.close()
+
+        print("✅ Database Initialized")
 
 
 # -------------------------
