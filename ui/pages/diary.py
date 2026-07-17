@@ -117,7 +117,7 @@ class DiaryPage(BasePage):
 
         self.content_text = ctk.CTkTextbox(
             self.left_panel,
-            height=300,
+            height=230,
             font=("Segoe UI", 15)
         )
 
@@ -128,31 +128,56 @@ class DiaryPage(BasePage):
             pady=10
         )
         # ==========================
+        # Buttons Frame
+        # ==========================
+
+        self.button_frame = ctk.CTkFrame(
+            self.left_panel,
+            fg_color="transparent"
+        )
+
+        self.button_frame.pack(
+        fill="x",
+        padx=30,
+        pady=(15,10)
+        )
+        
+        # ==========================
         # Save Button
         # ==========================
 
         save_button = ctk.CTkButton(
-            self.left_panel,
+            self.button_frame,
             text="💾 Save Entry",
             height=42,
             command=self.save_entry
         )
 
         save_button.pack(
-            pady=(10, 20)
-        )
-        self.status_label = ctk.CTkLabel(
-            self.left_panel,
-        text="",
-        text_color="lightgreen",
-        font=("Segoe UI", 13)
+        side="left",
+        padx=8
         )
 
-        self.status_label.pack(pady=(5, 10))
+        # ==========================
+        # Favorite Button
+        # ==========================
+
+        self.favorite_button = ctk.CTkButton(
+            self.button_frame,
+            text="⭐ Mark as Favorite",
+            height=40,
+            state="disabled",
+            command=self.toggle_favorite
+        )
+
+        self.favorite_button.pack(
+        side="left",
+        padx=8
+        )
 
         self.delete_button = ctk.CTkButton(
 
-            self.left_panel,
+            self.button_frame,
 
             text="🗑 Delete Entry",
 
@@ -167,8 +192,23 @@ class DiaryPage(BasePage):
         )
 
         self.delete_button.pack(
-            pady=(5, 15)
+        side="left",
+        padx=8
         )
+
+       
+        print("Delete Button Created")
+
+        self.status_label = ctk.CTkLabel(
+            self.left_panel,
+        text="",
+        text_color="lightgreen",
+        font=("Segoe UI", 13)
+        )
+
+        self.status_label.pack(pady=(5, 10))
+
+        
 
         # ==========================
         # Recent Entries
@@ -194,6 +234,27 @@ class DiaryPage(BasePage):
             expand=True,
             padx=10,
             pady=(0, 10)
+        )
+
+        # ==========================
+        # Search Box
+        # ==========================
+
+        self.search_entry = ctk.CTkEntry(
+            self.right_panel,
+            placeholder_text="🔍 Search entries..."
+        )
+
+        self.search_entry.pack(
+            fill="x",
+            padx=10,
+            pady=(0, 10)
+        )
+
+        # Live Search
+        self.search_entry.bind(
+            "<KeyRelease>",
+            self.search_entries
         )
 
         # Load existing entries
@@ -259,6 +320,12 @@ class DiaryPage(BasePage):
 
             self.selected_entry_id = None
 
+            self.favorite_button.configure(
+            state="disabled",
+            text="⭐ Mark as Favorite"
+            )
+
+
         # Clear Form
         self.title_entry.delete(0, "end")
 
@@ -275,44 +342,53 @@ class DiaryPage(BasePage):
 
     def load_entries(self):
 
-        # Remove old widgets
+        entries = self.repository.get_all_entries()
+
+        self.display_entries(entries)
+
+    def search_entries(self, event=None):
+
+        keyword = self.search_entry.get().strip()
+
+        if keyword == "":
+            self.load_entries()
+            return
+
+        entries = self.repository.search_entries(keyword)
+
+        self.display_entries(entries)
+
+    def display_entries(self, entries):
+
+        # Clear old widgets
         for widget in self.entries_frame.winfo_children():
             widget.destroy()
-
-        entries = self.repository.get_all_entries()
 
         if not entries:
 
             empty = ctk.CTkLabel(
                 self.entries_frame,
-                text="No diary entries yet.",
+                text="No entries found.",
                 text_color="gray"
             )
 
             empty.pack(pady=20)
+
             return
 
         for entry in entries:
 
-            entry_button = ctk.CTkButton(
-
+            button = ctk.CTkButton(
                 self.entries_frame,
-
                 text=entry[1],
-
                 anchor="w",
-
                 fg_color="transparent",
-
                 hover_color="#3A3A3A",
-
                 height=40,
-
                 command=lambda entry_id=entry[0]: self.load_entry(entry_id)
-
             )
 
-            entry_button.pack(
+            button.pack(
                 fill="x",
                 pady=5
             )
@@ -340,9 +416,72 @@ class DiaryPage(BasePage):
             text_color="skyblue"
         )
 
+        # Enable Favorite Button
+        self.favorite_button.configure(state="normal")
+
+        # Update Button Text
+        if entry[9] == 1:
+            self.favorite_button.configure(
+                text="⭐ Remove Favorite"
+            )
+        else:
+            self.favorite_button.configure(
+                text="⭐ Mark as Favorite"
+            )
+
+    def toggle_favorite(self):
+
+        if self.selected_entry_id is None:
+            return
+
+        entry = self.repository.get_entry_by_id(
+            self.selected_entry_id
+        )
+
+        if not entry:
+            return
+
+        current = entry[9]
+
+        new_value = 0 if current == 1 else 1
+
+        self.repository.toggle_favorite(
+            self.selected_entry_id,
+            new_value
+        )
+
+        if new_value == 1:
+
+            self.favorite_button.configure(
+                text="⭐ Remove Favorite"
+            )
+
+            self.status_label.configure(
+                text="⭐ Added to Favorites",
+                text_color="gold"
+            )
+
+        else:
+
+            self.favorite_button.configure(
+                text="⭐ Mark as Favorite"
+            )
+
+            self.status_label.configure(
+                text="Removed from Favorites",
+                text_color="gray"
+            )
+
+        self.load_entries()
+
     def delete_entry(self):
 
         if self.selected_entry_id is None:
+
+            self.favorite_button.configure(
+            state="disabled",
+            text="⭐ Mark as Favorite"
+            )
 
             self.status_label.configure(
                 text="⚠️ Select an entry first.",

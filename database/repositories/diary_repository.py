@@ -73,6 +73,24 @@ class DiaryRepository:
 
         return self.cursor.fetchall()
     
+    def search_entries(self, keyword):
+
+        self.cursor.execute(
+            """
+            SELECT *
+            FROM diary
+            WHERE title LIKE ?
+            OR content LIKE ?
+            ORDER BY id DESC
+            """,
+            (
+                f"%{keyword}%",
+                f"%{keyword}%"
+            )
+        )
+
+        return self.cursor.fetchall()
+    
     def get_entry_by_id(self, entry_id):
 
         self.cursor.execute(
@@ -81,6 +99,19 @@ class DiaryRepository:
         )
 
         return self.cursor.fetchone()
+    
+    def get_favorite_entries(self):
+
+        self.cursor.execute(
+            """
+            SELECT *
+            FROM diary
+            WHERE favorite = 1
+            ORDER BY updated_at DESC
+            """
+        )
+
+        return self.cursor.fetchall()
     
     def update_entry(
         self,
@@ -114,6 +145,28 @@ class DiaryRepository:
 
         print("✅ Diary Entry Updated")
 
+    # -------------------------
+    # Toggle Favorite
+    # -------------------------
+
+    def toggle_favorite(self, entry_id, favorite):
+
+        self.cursor.execute(
+            """
+            UPDATE diary
+            SET favorite = ?
+            WHERE id = ?
+            """,
+            (
+                favorite,
+                entry_id
+            )
+        )
+
+        self.db.commit()
+
+        print("⭐ Favorite Updated")
+        
     def delete_entry(self, entry_id):
 
         self.cursor.execute(
