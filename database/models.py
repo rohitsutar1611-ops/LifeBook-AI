@@ -46,9 +46,30 @@ class DatabaseModels:
 
         print("✅ Diary Table Created")
 
+    def create_mood_table(self):
+
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS moods (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            mood TEXT NOT NULL,
+
+            note TEXT,
+
+            created_at TEXT NOT NULL
+
+        )
+        """)
+
+        self.db.commit()
+
+        print("✅ Mood Table Created")
+
     def create_all_tables(self):
 
         self.create_diary_table()
+        self.create_mood_table()
 
     def close(self):
 
