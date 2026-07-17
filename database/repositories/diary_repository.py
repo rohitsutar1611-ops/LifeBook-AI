@@ -68,7 +68,11 @@ class DiaryRepository:
     def get_all_entries(self):
 
         self.cursor.execute(
-            "SELECT * FROM diary"
+            """
+            SELECT *
+            FROM diary
+            ORDER BY id DESC
+            """
         )
 
         return self.cursor.fetchall()

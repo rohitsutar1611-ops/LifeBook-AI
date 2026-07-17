@@ -3,6 +3,8 @@ from database.repositories.diary_repository import DiaryRepository
 
 import customtkinter as ctk
 from datetime import datetime
+from tkinter import messagebox
+
 
 
 class DiaryPage(BasePage):
@@ -368,21 +370,29 @@ class DiaryPage(BasePage):
 
             empty = ctk.CTkLabel(
                 self.entries_frame,
-                text="No entries found.",
-                text_color="gray"
+                text="📖\n\nNo Diary Entries Yet\n\nStart writing your first memory!",
+                text_color="gray",
+                font=("Segoe UI", 15),
+                justify="center"
             )
 
-            empty.pack(pady=20)
+            empty.pack(
+                expand=True,
+                pady=50
+            )
 
             return
-
         for entry in entries:
 
             button = ctk.CTkButton(
                 self.entries_frame,
-                text=entry[1],
+                text=f"⭐ {entry[1]}" if entry[9] == 1 else entry[1],
                 anchor="w",
-                fg_color="transparent",
+                fg_color=(
+                    "#2563EB"
+                    if entry[0] == self.selected_entry_id
+                    else "transparent"
+                ),
                 hover_color="#3A3A3A",
                 height=40,
                 command=lambda entry_id=entry[0]: self.load_entry(entry_id)
@@ -428,6 +438,8 @@ class DiaryPage(BasePage):
             self.favorite_button.configure(
                 text="⭐ Mark as Favorite"
             )
+
+        self.load_entries()
 
     def toggle_favorite(self):
 
@@ -488,6 +500,14 @@ class DiaryPage(BasePage):
                 text_color="orange"
             )
 
+            return
+        
+        confirm = messagebox.askyesno(
+            "Delete Entry",
+            "Are you sure you want to delete this diary entry?"
+        )
+
+        if not confirm:
             return
 
         self.repository.delete_entry(
